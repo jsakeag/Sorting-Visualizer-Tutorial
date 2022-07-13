@@ -1,3 +1,28 @@
+export function getInsertionSortAnimations(array) {
+  const animations = [];
+  if (array.length <= 1) return array;
+  const auxillaryArray = array.slice();
+  insertionSort(array, auxillaryArray, animations);
+  return animations;
+}
+//animations returns a different [index, index] or [index, height] pair that needs to be changed
+
+function insertionSort(array, auxiliary, animations) {
+  let n = array.length;
+  for (let i = 1; i < n; i++) {
+    let current = array[i];
+    let j = i - 1;
+    while (j > -1 && current < array[j]) {
+      array[j + 1] = array[j];
+      animations.push([j + 1, array[j + 1]]);
+      j--;
+    }
+    //adds one back so that j stays as the index below last swapped
+    array[j + 1] = current;
+    animations.push([j + 1, array[j + 1]]);
+  }
+}
+
 export function getMergeSortAnimations(array) {
   const animations = [];
   if (array.length <= 1) return array;

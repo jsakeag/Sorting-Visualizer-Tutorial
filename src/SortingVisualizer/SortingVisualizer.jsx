@@ -1,12 +1,12 @@
 import React from 'react';
-import {getMergeSortAnimations} from '../sortingAlgorithms/sortingAlgorithms.js';
+import {getInsertionSortAnimations, getMergeSortAnimations} from '../sortingAlgorithms/sortingAlgorithms.js';
 import './SortingVisualizer.css';
 
 // Change this value for the speed of the animations.
-const ANIMATION_SPEED_MS = 1;
+const ANIMATION_SPEED_MS = 15;
 
 // Change this value for the number of bars (value) in the array.
-const NUMBER_OF_ARRAY_BARS = 310;
+const NUMBER_OF_ARRAY_BARS = 50;
 
 // This is the main color of the array bars.
 const PRIMARY_COLOR = 'turquoise';
@@ -30,26 +30,41 @@ export default class SortingVisualizer extends React.Component {
   resetArray() {
     const array = [];
     for (let i = 0; i < NUMBER_OF_ARRAY_BARS; i++) {
-      array.push(randomIntFromInterval(5, 730));
+      array.push(randomIntFromInterval(5, 700));
     }
     this.setState({array});
   }
 
+
   mergeSort() {
+    //run algorithm and get animations
     const animations = getMergeSortAnimations(this.state.array);
     for (let i = 0; i < animations.length; i++) {
+      //get all array bars by element
       const arrayBars = document.getElementsByClassName('array-bar');
+      //determine indexes of color changing elements:
+      //first two cases: 0, 1 color change
+      //last case: 2 no color change
+      //will occur every ASM milliseconds (hence the second parameter of the settimeout function)
       const isColorChange = i % 3 !== 2;
+      //two color change cases (this will happen twice to enable then disable color)
       if (isColorChange) {
+        //get two bars from [index, index] pair
+        //change two swap bar styles
+        //if first case, change to secondary color, if second set back to primary color (never last case)
         const [barOneIdx, barTwoIdx] = animations[i];
         const barOneStyle = arrayBars[barOneIdx].style;
         const barTwoStyle = arrayBars[barTwoIdx].style;
         const color = i % 3 === 0 ? SECONDARY_COLOR : PRIMARY_COLOR;
+        //every ANIM_S_m milliseconds, set the two bar colors
         setTimeout(() => {
           barOneStyle.backgroundColor = color;
           barTwoStyle.backgroundColor = color;
         }, i * ANIMATION_SPEED_MS);
+      //not color change case (this only happens once every three)
       } else {
+        //get animation [idx, height] pair
+        //change bar style to adjust to newHeight
         setTimeout(() => {
           const [barOneIdx, newHeight] = animations[i];
           const barOneStyle = arrayBars[barOneIdx].style;
@@ -59,6 +74,17 @@ export default class SortingVisualizer extends React.Component {
     }
   }
 
+  insertionSort(){
+    const animations = getInsertionSortAnimations(this.state.array);
+    for(let i = 0; i < animations.length; i++){
+      const arrayBars = document.getElementsByClassName('array-bar');
+      setTimeout(() => {
+        const [barIdx, barVal] = animations[i]
+        const barStyle = arrayBars[barIdx].style
+        barStyle.height = `${barVal}px`;
+      }, i * ANIMATION_SPEED_MS)
+    }
+  }
   quickSort() {
     // We leave it as an exercise to the viewer of this code to implement this method.
   }
@@ -103,6 +129,7 @@ export default class SortingVisualizer extends React.Component {
         ))}
         <button onClick={() => this.resetArray()}>Generate New Array</button>
         <button onClick={() => this.mergeSort()}>Merge Sort</button>
+        <button onClick={() => this.insertionSort()}>Insertion Sort</button>
         <button onClick={() => this.quickSort()}>Quick Sort</button>
         <button onClick={() => this.heapSort()}>Heap Sort</button>
         <button onClick={() => this.bubbleSort()}>Bubble Sort</button>
